@@ -1,0 +1,17 @@
+# Stable entry point in front of both replicas. Added alongside the
+# reference Deployment; the Deployment itself is unchanged.
+apiVersion: v1
+kind: Service
+metadata:
+  name: csce412-demo
+  labels:
+    app: csce412-demo
+spec:
+  type: NodePort
+  selector:
+    app: csce412-demo        # same label the Deployment stamps on its pods
+  ports:
+    - name: http
+      port: 80               # ClusterIP port inside the cluster
+      targetPort: 80         # containerPort on each pod
+      nodePort: 30080        # reachable on every node's IP
