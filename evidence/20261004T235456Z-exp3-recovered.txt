@@ -1,0 +1,48 @@
+### exp3-recovered - 2026-10-04 23:54:56 UTC
+
+$ kubectl get nodes -o wide
+NAME         STATUS   ROLES           AGE   VERSION        INTERNAL-IP    EXTERNAL-IP   OS-IMAGE             KERNEL-VERSION            CONTAINER-RUNTIME
+k3s-server   Ready    control-plane   29m   v1.36.5+k3s1   172.31.1.30    <none>        Ubuntu 24.04.4 LTS   6.17.0-1017-aws (amd64)   containerd://2.3.4-k3s1.36
+k3s-worker   Ready    worker          27m   v1.36.5+k3s1   172.31.9.198   <none>        Ubuntu 24.04.4 LTS   6.17.0-1017-aws (amd64)   containerd://2.3.4-k3s1.36
+
+$ kubectl get node k3s-worker -o jsonpath='{range .spec.taints[*]}{.key}:{.effect}{"\n"}{end}'
+
+$ kubectl get deployment csce412-demo
+NAME           READY   UP-TO-DATE   AVAILABLE   AGE
+csce412-demo   2/2     2            2           23m
+
+$ kubectl get replicaset -l app=csce412-demo
+NAME                     DESIRED   CURRENT   READY   AGE
+csce412-demo-7fd5df7bf   2         2         2       23m
+
+$ kubectl get pods -l app=csce412-demo -o wide
+NAME                           READY   STATUS    RESTARTS   AGE   IP          NODE         NOMINATED NODE   READINESS GATES
+csce412-demo-7fd5df7bf-b6wlk   1/1     Running   0          23m   10.42.0.5   k3s-server   <none>           <none>
+csce412-demo-7fd5df7bf-p6kcn   1/1     Running   0          10m   10.42.0.6   k3s-server   <none>           <none>
+
+$ kubectl get events --sort-by=.lastTimestamp | tail -n 25
+23m         Normal    ScalingReplicaSet                deployment/csce412-demo             Scaled up replica set csce412-demo-7fd5df7bf from 0 to 2
+23m         Normal    Pulling                          pod/csce412-demo-7fd5df7bf-kvnwv    Pulling image "nginx:alpine"
+23m         Normal    Started                          pod/csce412-demo-7fd5df7bf-b6wlk    Container started
+23m         Normal    Created                          pod/csce412-demo-7fd5df7bf-b6wlk    Container created
+23m         Normal    Pulled                           pod/csce412-demo-7fd5df7bf-b6wlk    Successfully pulled image "nginx:alpine" in 1.69s (1.69s including waiting). Image size: 26335715 bytes.
+23m         Normal    Created                          pod/csce412-demo-7fd5df7bf-kvnwv    Container created
+23m         Normal    Pulled                           pod/csce412-demo-7fd5df7bf-kvnwv    Successfully pulled image "nginx:alpine" in 1.767s (1.767s including waiting). Image size: 26335715 bytes.
+23m         Normal    Started                          pod/csce412-demo-7fd5df7bf-kvnwv    Container started
+15m         Warning   NodeNotReady                     pod/csce412-demo-7fd5df7bf-kvnwv    Node is not ready
+15m         Normal    NodeNotReady                     node/k3s-worker                     Node k3s-worker status is now: NodeNotReady
+10m         Normal    SuccessfulCreate                 replicaset/csce412-demo-7fd5df7bf   Created pod: csce412-demo-7fd5df7bf-p6kcn
+10m         Normal    TaintManagerEviction             pod/csce412-demo-7fd5df7bf-kvnwv    Marking for deletion Pod default/csce412-demo-7fd5df7bf-kvnwv
+10m         Normal    Pulled                           pod/csce412-demo-7fd5df7bf-p6kcn    Container image "nginx:alpine" already present on machine and can be accessed by the pod
+10m         Normal    Created                          pod/csce412-demo-7fd5df7bf-p6kcn    Container created
+10m         Normal    Started                          pod/csce412-demo-7fd5df7bf-p6kcn    Container started
+39s         Normal    CertificateExpirationOK          node/k3s-worker                     Node and Certificate Authority certificates managed by k3s are OK
+37s         Warning   InvalidDiskCapacity              node/k3s-worker                     invalid capacity 0 on image filesystem
+37s         Normal    Starting                         node/k3s-worker                     Starting kubelet.
+37s         Normal    NodeAllocatableEnforced          node/k3s-worker                     Updated Node Allocatable limit across pods
+37s         Warning   Rebooted                         node/k3s-worker                     Node k3s-worker has been rebooted, boot id: 6494b29e-ad59-4b6a-9a0d-4049e7818686
+37s         Normal    NodeHasSufficientMemory          node/k3s-worker                     Node k3s-worker status is now: NodeHasSufficientMemory
+37s         Normal    NodeHasNoDiskPressure            node/k3s-worker                     Node k3s-worker status is now: NodeHasNoDiskPressure
+37s         Normal    NodeHasSufficientPID             node/k3s-worker                     Node k3s-worker status is now: NodeHasSufficientPID
+37s         Normal    NodeReady                        node/k3s-worker                     Node k3s-worker status is now: NodeReady
+35s         Warning   FailedMount                      pod/csce412-demo-7fd5df7bf-kvnwv    MountVolume.SetUp failed for volume "kube-api-access-9t64k" : object "default"/"kube-root-ca.crt" not registered

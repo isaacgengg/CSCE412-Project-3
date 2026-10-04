@@ -1,0 +1,48 @@
+### exp1-baseline - 2026-10-04 23:36:21 UTC
+
+$ kubectl get nodes -o wide
+NAME         STATUS   ROLES           AGE   VERSION        INTERNAL-IP    EXTERNAL-IP   OS-IMAGE             KERNEL-VERSION            CONTAINER-RUNTIME
+k3s-server   Ready    control-plane   11m   v1.36.5+k3s1   172.31.1.30    <none>        Ubuntu 24.04.4 LTS   6.17.0-1017-aws (amd64)   containerd://2.3.4-k3s1.36
+k3s-worker   Ready    worker          9m    v1.36.5+k3s1   172.31.9.198   <none>        Ubuntu 24.04.4 LTS   6.17.0-1017-aws (amd64)   containerd://2.3.4-k3s1.36
+
+$ kubectl get node k3s-worker -o jsonpath='{range .spec.taints[*]}{.key}:{.effect}{"\n"}{end}'
+
+$ kubectl get deployment csce412-demo
+NAME           READY   UP-TO-DATE   AVAILABLE   AGE
+csce412-demo   2/2     2            2           4m45s
+
+$ kubectl get replicaset -l app=csce412-demo
+NAME                     DESIRED   CURRENT   READY   AGE
+csce412-demo-7fd5df7bf   2         2         2       4m46s
+
+$ kubectl get pods -l app=csce412-demo -o wide
+NAME                           READY   STATUS    RESTARTS   AGE     IP          NODE         NOMINATED NODE   READINESS GATES
+csce412-demo-7fd5df7bf-b6wlk   1/1     Running   0          4m46s   10.42.0.5   k3s-server   <none>           <none>
+csce412-demo-7fd5df7bf-kvnwv   1/1     Running   0          4m46s   10.42.1.2   k3s-worker   <none>           <none>
+
+$ kubectl get events --sort-by=.lastTimestamp | tail -n 25
+11m         Normal    NodeHasSufficientPID             node/k3s-server                     Node k3s-server status is now: NodeHasSufficientPID
+11m         Normal    Synced                           node/k3s-server                     Node synced successfully
+11m         Normal    RegisteredNode                   node/k3s-server                     Node k3s-server event: Registered Node k3s-server in Controller
+11m         Normal    NodePasswordValidationComplete   node/k3s-server                     Deferred node password secret validation complete
+9m2s        Normal    CertificateExpirationOK          node/k3s-worker                     Node and Certificate Authority certificates managed by k3s are OK
+9m1s        Normal    NodeAllocatableEnforced          node/k3s-worker                     Updated Node Allocatable limit across pods
+9m1s        Normal    NodeHasSufficientMemory          node/k3s-worker                     Node k3s-worker status is now: NodeHasSufficientMemory
+9m1s        Normal    NodeHasSufficientPID             node/k3s-worker                     Node k3s-worker status is now: NodeHasSufficientPID
+9m1s        Normal    NodeHasNoDiskPressure            node/k3s-worker                     Node k3s-worker status is now: NodeHasNoDiskPressure
+9m1s        Normal    Starting                         node/k3s-worker                     Starting kubelet.
+9m1s        Warning   InvalidDiskCapacity              node/k3s-worker                     invalid capacity 0 on image filesystem
+9m          Normal    NodeReady                        node/k3s-worker                     Node k3s-worker status is now: NodeReady
+9m          Normal    Synced                           node/k3s-worker                     Node synced successfully
+8m56s       Normal    RegisteredNode                   node/k3s-worker                     Node k3s-worker event: Registered Node k3s-worker in Controller
+4m46s       Normal    SuccessfulCreate                 replicaset/csce412-demo-7fd5df7bf   Created pod: csce412-demo-7fd5df7bf-b6wlk
+4m46s       Normal    ScalingReplicaSet                deployment/csce412-demo             Scaled up replica set csce412-demo-7fd5df7bf from 0 to 2
+4m46s       Normal    Pulling                          pod/csce412-demo-7fd5df7bf-b6wlk    Pulling image "nginx:alpine"
+4m46s       Normal    SuccessfulCreate                 replicaset/csce412-demo-7fd5df7bf   Created pod: csce412-demo-7fd5df7bf-kvnwv
+4m45s       Normal    Pulling                          pod/csce412-demo-7fd5df7bf-kvnwv    Pulling image "nginx:alpine"
+4m44s       Normal    Created                          pod/csce412-demo-7fd5df7bf-b6wlk    Container created
+4m44s       Normal    Pulled                           pod/csce412-demo-7fd5df7bf-b6wlk    Successfully pulled image "nginx:alpine" in 1.69s (1.69s including waiting). Image size: 26335715 bytes.
+4m44s       Normal    Started                          pod/csce412-demo-7fd5df7bf-b6wlk    Container started
+4m43s       Normal    Pulled                           pod/csce412-demo-7fd5df7bf-kvnwv    Successfully pulled image "nginx:alpine" in 1.767s (1.767s including waiting). Image size: 26335715 bytes.
+4m43s       Normal    Created                          pod/csce412-demo-7fd5df7bf-kvnwv    Container created
+4m43s       Normal    Started                          pod/csce412-demo-7fd5df7bf-kvnwv    Container started
